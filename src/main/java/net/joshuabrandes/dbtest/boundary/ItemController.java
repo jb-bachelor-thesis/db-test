@@ -20,7 +20,7 @@ public class ItemController {
     }
 
     @GetMapping("/v1/categories")
-    public ResponseEntity<List<CategoryDTO>> getItems() {
+    public ResponseEntity<List<CategoryDTO>> getCategories() {
         return ResponseEntity.ok(itemService.getCategories());
     }
 
