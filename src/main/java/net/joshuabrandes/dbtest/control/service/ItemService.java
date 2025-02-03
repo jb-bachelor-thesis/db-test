@@ -124,7 +124,7 @@ public class ItemService {
             var categoryList = categoryMap.get(category);
             categoryList.sort((a, b) -> b.getPrice().compareTo(a.getPrice()));
 
-            var firstItem = categoryList.get(0);
+            var firstItem = categoryList.getFirst();
             result.put(category, ItemMapper.mapToItemDTO(firstItem));
         }
 
