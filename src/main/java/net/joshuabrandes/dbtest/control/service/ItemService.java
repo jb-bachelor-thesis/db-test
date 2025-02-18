@@ -23,30 +23,14 @@ public class ItemService {
     }
 
     public List<CategoryDTO> getCategories() {
-        var items = getItemsForLast10Years();
-
-        var itemsExpensive = new ArrayList<Item>();
-        for (var item : items) {
-            if (item.getPrice() > 100) itemsExpensive.add(item);
-        }
+        var items = getExpensiveItemsForLast3Years();
 
         var notDiscontinued = new ArrayList<Item>();
-        for (var item : itemsExpensive) {
+        for (var item : items) {
             if (!item.getStatus().equalsIgnoreCase("discontinued")) notDiscontinued.add(item);
         }
 
-        var filteredExpensiveTechAndCheapJewelry = new ArrayList<Item>();
-        for (var item : notDiscontinued) {
-            var add = true;
-            if (item.getCategory().equalsIgnoreCase("technology")) {
-                if (item.getPrice() >= 1000) add = false;
-            } else if (item.getCategory().equalsIgnoreCase("jewelry")) {
-                if (item.getPrice() <= 250) add = false;
-            }
-            if (add) filteredExpensiveTechAndCheapJewelry.add(item);
-        }
-
-        var sorted = new ArrayList<>(filteredExpensiveTechAndCheapJewelry);
+        var sorted = new ArrayList<>(notDiscontinued);
         sorted.sort((a, b) -> {
             var categoryCompare = a.getCategory().compareTo(b.getCategory());
             if (categoryCompare != 0) return categoryCompare;
@@ -75,18 +59,13 @@ public class ItemService {
                     newPrice,
                     item.getStatus()
             );
-            adjustedPrices.add(adjustedItem);
-        }
-
-        var finalPriceFiltered = new ArrayList<Item>();
-        for (var item : adjustedPrices) {
-            if (item.getPrice() < 850.0) finalPriceFiltered.add(item);
+            adjustedPrices.add(itemRepository.save(adjustedItem));
         }
 
         var categoryAverages = new HashMap<String, Double>();
         var categoryCounts = new HashMap<String, Integer>();
 
-        for (var item : finalPriceFiltered) {
+        for (var item : adjustedPrices) {
             var category = item.getCategory();
             var currentSum = categoryAverages.getOrDefault(category, 0.0);
             var currentCount = categoryCounts.getOrDefault(category, 0);
@@ -131,9 +110,7 @@ public class ItemService {
         return result;
     }
 
-    private List<Item> getItemsForLast10Years() {
-        // you may want to change REFERENCE_TIME depending on your dataset
-        var date = REFERENCE_TIME.minusYears(10);
-        return itemRepository.getAllByCreatedAtBefore(date);
+    private List<Item> getExpensiveItemsForLast3Years() {
+        return itemRepository.getAllByCreatedAtAfterAndPriceIsGreaterThan(REFERENCE_TIME.minusYears(3), 500.0);
     }
 }

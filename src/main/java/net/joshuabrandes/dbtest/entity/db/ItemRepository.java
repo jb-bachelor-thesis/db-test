@@ -10,4 +10,6 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> getAllByCreatedAtBefore(LocalDateTime createdAtBefore);
+
+    List<Item> getAllByCreatedAtAfterAndPriceIsGreaterThan(LocalDateTime createdAtAfter, Double priceIsGreaterThan);
 }
