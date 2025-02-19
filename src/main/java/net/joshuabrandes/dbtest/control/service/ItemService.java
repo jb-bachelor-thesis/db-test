@@ -14,6 +14,7 @@ import java.util.*;
 @Service
 public class ItemService {
 
+    private static final int DB_ITEM_COUNT = 100_000;
     private static final LocalDateTime REFERENCE_TIME = LocalDate.now().atStartOfDay();
 
     private final ItemRepository itemRepository;
@@ -31,6 +32,7 @@ public class ItemService {
         }
 
         var sorted = new ArrayList<>(notDiscontinued);
+        /*
         sorted.sort((a, b) -> {
             var categoryCompare = a.getCategory().compareTo(b.getCategory());
             if (categoryCompare != 0) return categoryCompare;
@@ -40,6 +42,7 @@ public class ItemService {
 
             return b.getCreatedAt().compareTo(a.getCreatedAt());
         });
+         */
 
         var adjustedPrices = new ArrayList<Item>();
         for (var item : sorted) {
@@ -116,5 +119,12 @@ public class ItemService {
 
     private List<Item> getExpensiveItemsForLast3Years() {
         return itemRepository.getAllByCreatedAtAfterAndPriceIsGreaterThan(REFERENCE_TIME.minusYears(3), 500.0);
+    }
+
+    public void checkCount() {
+        var count = itemRepository.count();
+        if (count != DB_ITEM_COUNT) {
+            throw new IllegalStateException("DB count is " + count + " but should be " + DB_ITEM_COUNT);
+        }
     }
 }
