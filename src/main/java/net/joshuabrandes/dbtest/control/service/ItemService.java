@@ -16,6 +16,8 @@ public class ItemService {
 
     private static final int DB_ITEM_COUNT = 100_000;
     private static final LocalDateTime REFERENCE_TIME = LocalDate.now().atStartOfDay();
+    private static final Random RANDOM = new Random();
+
 
     private final ItemRepository itemRepository;
 
@@ -65,7 +67,7 @@ public class ItemService {
             newPrice = Math.max(501.0, newPrice);
 
 
-            item.setPrice(newPrice);
+            item.setPrice(newPrice * getRandomDouble(10d));
             adjustedPrices.add(itemRepository.save(item));
         }
 
@@ -118,7 +120,15 @@ public class ItemService {
     }
 
     private List<Item> getExpensiveItemsForLast3Years() {
-        return itemRepository.getAllByCreatedAtAfterAndPriceIsGreaterThan(REFERENCE_TIME.minusYears(3), 500.0);
+        return itemRepository.getAllByCreatedAtAfterAndPriceIsGreaterThan(REFERENCE_TIME.minusYears(3), 500.0 -getRandomDouble());
+    }
+
+    private static double getRandomDouble() {
+        return getRandomDouble(1);
+    }
+
+    private static double getRandomDouble(double modifier) {
+        return RANDOM.nextDouble() * modifier;
     }
 
     public void checkCount() {
